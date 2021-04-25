@@ -268,7 +268,7 @@ def address():
         
         if content['platform'] == "Ethereum":
             #Your code here
-            print("this is content = ", content)
+            print("this is content = ", json.dumps(content))
             eth_pk = content['receiver_pk']
             return jsonify( eth_pk )
         if content['platform'] == "Algorand":
