@@ -197,15 +197,15 @@ def fill_order(order, txes=[]):
                 session.commit()
                 
     # Validate the order has a payment to back it (make sure the counterparty also made a payment)
-    if(order['sell_currency'] == "Ethereum")
+    if(order['sell_currency'] == "Ethereum"):
             tx = w3.eth.get_transaction(order['tx_id'])
             if(tx.value != order['sell_amount']):
                 log_message(order)
                 return jsonify( False )
-    if(order['sell_currency'] == "Algorand")
+    if(order['sell_currency'] == "Algorand"):
         myindexer = connect_to_algo(connection_type='indexer')
         tx = myindexer.search_transactions(txid = order['tx_id'])
-        if(tx.value !=order['sell_amount'])
+        if(tx.value !=order['sell_amount']):
                 log_message(order)
                 return jsonify( False )
             
