@@ -268,11 +268,11 @@ def address():
         
         if content['platform'] == "Ethereum":
             #Your code here
-            eth_pk = content['payload']['receiver_pk']
+            eth_pk = content['receiver_pk']
             return jsonify( eth_pk )
         if content['platform'] == "Algorand":
             #Your code here
-            algo_pk = content['payload']['receiver_pk']
+            algo_pk = content['receiver_pk']
             return jsonify( algo_pk )
 
 
