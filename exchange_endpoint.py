@@ -239,7 +239,7 @@ def execute_txes(txes):
     print( f"Trying to execute {len(txes)} transactions" )
     print( f"IDs = {[tx['order_id'] for tx in txes]}" )
 
-    eth_sk, eth_pk = get_eth_keys(filename = "eth_mnemonic.txt")
+    eth_sk, eth_pk = get_eth_keys()
     algo_sk, algo_pk = get_algo_keys()
     
     if not all( tx['platform'] in ["Algorand","Ethereum"] for tx in txes ):
@@ -255,13 +255,13 @@ def execute_txes(txes):
     #       2. Add all transactions to the TX table
     for algo_tx in algo_txes:
         acl = connect_to_algo()
-        send_tokens_algo(acl, algo_pk , algo_tx)
-        g.session.add(algo_tx)
+        algo_tx_ids = send_tokens_algo(acl, algo_pk , algo_tx)
+        g.session.add(algo_tx_id)
         g.session.commit()
         
     for eth_tx in eth_txes:
         w3 = connect_to_eth()
-        send_tokens_eth(w3, eth_sk, eth_tx) 
+        eth_tx_ids = send_tokens_eth(w3, eth_sk, eth_tx) 
         g.session.add(eth_tx)
         g.session.commit()
     
