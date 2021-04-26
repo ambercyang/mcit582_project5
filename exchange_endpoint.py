@@ -188,14 +188,14 @@ def fill_order(order, txes=[]):
         if order_obj.buy_amount > matched_order.sell_amount:
                 new_order = Order(sender_pk = order_obj.sender_pk,receiver_pk = order_obj.receiver_pk,                                   buy_currency = order_obj.buy_currency, sell_currency = order_obj.sell_currency,                                   buy_amount = order_obj.buy_amount - matched_order.sell_amount,                                   sell_amount = (order_obj.buy_amount - matched_order.sell_amount)* order_obj.sell_amount / order_obj.buy_amount,                                  creator_id = order_obj.id)
                 #print("partially filled, new_order.buy_amount > matched_order.sell amount, creator_id =", new_order.creator_id)
-                txes.append(tx_id = order_obj.tx_id, platform = order_obj.sell_currency, reciver_pk = order_obj.reciver_pk)
+                txes.append(tx_id = order_obj.tx_id, platform = order_obj.sell_currency, receiver_pk = order_obj.receiver_pk)
                 g.session.add(new_order)
                 g.session.commit()
                   
         if matched_order.buy_amount > order_obj.sell_amount:
                 new_order = Order(sender_pk = matched_order.sender_pk,receiver_pk = matched_order.receiver_pk,                                   buy_currency =matched_order.buy_currency, sell_currency = matched_order.sell_currency,                                   buy_amount = matched_order.buy_amount - order_obj.sell_amount,                                   sell_amount= (matched_order.buy_amount - order_obj.sell_amount) * matched_order.sell_amount / matched_order.buy_amount,                                  creator_id = matched_order.id)
                 #print("partially filled, matched_order.buy_amount>new_order.sell_amount, creator_id =", new_order.creator_id)
-                txes.append(tx_id = order_obj.tx_id, platform = order_obj.sell_currency, reciver_pk = order_obj.reciver_pk)
+                txes.append(tx_id = order_obj.tx_id, platform = order_obj.sell_currency, receiver_pk = order_obj.receiver_pk)
                 g.session.add(new_order)
                 g.session.commit()
                 
@@ -216,7 +216,7 @@ def fill_order(order, txes=[]):
             
   
     # Make sure that you end up executing all resulting transactions!
-    txes.append(tx_id = order['tx_id'], platform = order['sell_currency'],reciever_pk= order['reciver_pk'])
+    txes.append(tx_id = order['tx_id'], platform = order['sell_currency'],reciever_pk= order['receiver_pk'])
     return txes
   
 def execute_txes(txes):
