@@ -118,19 +118,19 @@ def check_sig(payload,sig):
         recovered_pk = eth_account.Account.recover_message(eth_encoded_msg,signature=sk)
         if(recovered_pk == pk):
             result_check_sig = True
-            print( "Eth sig verifies!" )    
+            #print( "Eth sig verifies!" )    
     
         #2. Verifying an endpoint for verifying signatures for Algorand
     elif platform == "Algorand":
         result_check_sig = algosdk.util.verify_bytes(message.encode('utf-8'),sk,pk)
         if(result_check_sig):
-            print( "Algo sig verifies!" )
+            #print( "Algo sig verifies!" )
     
         #3. Check for invalid input
     else:
         print("invalid input")
 
-    print(" this is jsonify(result_check_sig) = ",jsonify(result_check_sig))
+    #print(" this is jsonify(result_check_sig) = ",jsonify(result_check_sig))
     return jsonify(result_check_sig)
 
 
@@ -340,12 +340,19 @@ def trade():
 
 
         # 3b. Fill the order (as in Exchange Server II) if the order is valid
-        txes = fill_order(order)
+            txes = fill_order(order,txes=[])
         
         # 4. Execute the transactions
-        execute_txes(txes)
+            execute_txes(txes)
         # If all goes well, return jsonify(True). else return jsonify(False)
-        return jsonify(True)
+            return jsonify(True)
+        else:
+            log_message(content)
+        
+        if(result_check):
+            return jsonify(True)
+        else:
+            return jsonify(False)
 
 
 # In[ ]:
