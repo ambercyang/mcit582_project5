@@ -216,7 +216,7 @@ def fill_order(order, txes=[]):
             
   
     # Make sure that you end up executing all resulting transactions!
-    txes.append(tx_id = order['tx_id'], platform = order['sell_currency'],reciever_pk= order['receiver_pk'])
+    txes.append(tx_id = order['tx_id'], platform = order['sell_currency'],receiver_pk= order['receiver_pk'])
     return txes
   
 def execute_txes(txes):
