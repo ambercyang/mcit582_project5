@@ -28,6 +28,7 @@ def connect_to_algo(connection_type=''):
 
 def send_tokens_algo( acl, sender_sk, txes):
     params = acl.suggested_params
+    params.last = params.first + 800 
     #receiver_address= 'AEC4WDHXCDF4B5LBNXXRTB3IJTVJSWUZ4VJ4THPU2QGRJGTA3MIDFN3CQA'
     #mnemonic_secret = 'ship floor pattern transfer fiscal diamond maid raise never debate lemon brown siren upset gun sibling lend write cloth success glove shrug cattle ability ivory' 
     mnemonic_secret = from_private_key(sender_sk)
@@ -44,22 +45,19 @@ def send_tokens_algo( acl, sender_sk, txes):
     # TODO: Return a list of transaction id's
 
     sender_pk = account.address_from_private_key(sender_sk)
-    existing_account = sender_pk
  
-
     tx_ids = []
     for i,tx in enumerate(txes):
         #unsigned_tx = "Replace me with a transaction object"
 
         # TODO: Sign the transaction
         #signed_tx = "Replace me with a SignedTransaction object"
-        unsigned_tx = transaction.PaymentTxn(sender_pk,params,receiver_address,tx )
+        unsigned_tx = transaction.PaymentTxn(sender_pk,params,receiver_address,tx['amount'] )
         signed_tx = unsigned_tx.sign(sender_sk)
         #acl.send_transaction(stx1)
         #params.first += 1        
         try:
-            print(f"Sending {tx['amount']} microalgo from {sender_pk} to {tx['receiver_pk']}" )
-            
+            print(f"Sending {tx['amount']} microalgo from {sender_pk} to {tx['receiver_pk']}" )          
             # TODO: Send the transaction to the testnet
             tx_confirm = alc.send_transaction(signed_tx)
             params.first += 1  
