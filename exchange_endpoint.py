@@ -125,6 +125,7 @@ def check_sig(payload,sig):
         result_check_sig = algosdk.util.verify_bytes(message.encode('utf-8'),sk,pk)
         if(result_check_sig):
             #print( "Algo sig verifies!" )
+            result_check_sig = True
     
         #3. Check for invalid input
     else:
