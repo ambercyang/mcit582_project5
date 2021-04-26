@@ -338,7 +338,7 @@ def trade():
 
 
         # 3b. Fill the order (as in Exchange Server II) if the order is valid
-        fill_order(order,txes)
+        fill_order(order,txes[])
         
         # 4. Execute the transactions
         execute_txes(txes)
