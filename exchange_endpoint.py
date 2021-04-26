@@ -255,7 +255,7 @@ def execute_txes(txes):
     for algo_tx in algo_txes:
         acl = connect_to_algo()
         send_tokens_algo(acl, algo_pk , algo_tx)
-        g.session.add(algo_tx))
+        g.session.add(algo_tx)
         g.session.commit()
         
     for eth_tx in eth_txes:
