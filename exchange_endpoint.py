@@ -207,6 +207,7 @@ def fill_order(order, txes=[]):
                 
         if matched_order.buy_amount == order_obj.sell_amount:
                 tx_obj = TX( platform = order_obj.sell_currency, receiver_pk = order_obj.receiver_pk, order_id = order_obj.id, tx_id = order_obj.tx_id,)
+                txes.append(tx_obj)
                 g.session.add(tx_obj)
                 g.session.commit()            
                 
@@ -224,7 +225,7 @@ def fill_order(order, txes=[]):
         if(tx.value !=order['sell_amount']):
                 log_message(order)
                 return jsonify( False )
-        txes.append(tx_obj)
+        
             
     # Make sure that you end up executing all resulting transactions!
     
