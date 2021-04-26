@@ -361,7 +361,7 @@ def order_book():
         myorder['sell_currency'] =  getattr(myquery,'sell_currency')
         myorder['buy_amount'] =  getattr(myquery,'buy_amount')
         myorder['sell_amount'] =  getattr(myquery,'sell_amount')
-        myorder['sender_pk'] =  getattr(myquery,'sender_pk')
+        #myorder['sender_pk'] =  getattr(myquery,'sender_pk')
         myorder['receiver_pk'] =  getattr(myquery,'receiver_pk')
         myorder['signature'] =  getattr(myquery,'signature')
         myorder['tx_id'] =  getattr(myquery,'tx_id')
