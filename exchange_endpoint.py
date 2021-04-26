@@ -217,7 +217,7 @@ def fill_order(order, txes=[]):
   
     # Make sure that you end up executing all resulting transactions!
     txes.append(tx_id = order['tx_id'], platform = order['sell_currency'],reciever_pk= order['reciver_pk'])
-    pass
+    return txes
   
 def execute_txes(txes):
     if txes is None:
@@ -338,7 +338,7 @@ def trade():
 
 
         # 3b. Fill the order (as in Exchange Server II) if the order is valid
-        fill_order(order,txes[])
+        txes = fill_order(order)
         
         # 4. Execute the transactions
         execute_txes(txes)
