@@ -268,12 +268,11 @@ def address():
         
         if content['platform'] == "Ethereum":
             #Your code here
-            print("this is content = ", json.dumps(content))
-            eth_pk = content['receiver_pk']
+            eth_sk,eth_pk = get_eth_keys(filename = "eth_mnemonic.txt")
             return jsonify( eth_pk )
         if content['platform'] == "Algorand":
             #Your code here
-            algo_pk = content['receiver_pk']
+            algo_sk,algo_pk = get_algo_keys()
             return jsonify( algo_pk )
 
 
