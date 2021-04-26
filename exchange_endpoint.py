@@ -154,6 +154,7 @@ def get_algo_keys():
 
 
 def get_eth_keys(filename = "eth_mnemonic.txt"):
+    Web3 = require('web3')
     w3 = Web3()
     
     # TODO: Generate or read (using the mnemonic secret) 
