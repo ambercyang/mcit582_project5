@@ -350,7 +350,7 @@ def trade():
 
 @app.route('/order_book')
 def order_book():
-    fields = [ "buy_currency", "sell_currency", "buy_amount", "sell_amount", "signature", "tx_id", "receiver_pk" ]
+    fields = [ "buy_currency", "sell_currency", "buy_amount", "sell_amount", "signature", "tx_id", "receiver_pk" ,"sender_pk"]
         
     # Same as before
     temp = g.session.query(Order)
@@ -361,7 +361,7 @@ def order_book():
         myorder['sell_currency'] =  getattr(myquery,'sell_currency')
         myorder['buy_amount'] =  getattr(myquery,'buy_amount')
         myorder['sell_amount'] =  getattr(myquery,'sell_amount')
-        #myorder['sender_pk'] =  getattr(myquery,'sender_pk')
+        myorder['sender_pk'] =  getattr(myquery,'sender_pk')
         myorder['receiver_pk'] =  getattr(myquery,'receiver_pk')
         myorder['signature'] =  getattr(myquery,'signature')
         myorder['tx_id'] =  getattr(myquery,'tx_id')
