@@ -206,6 +206,7 @@ def fill_order(order, txes=[]):
                 return jsonify( False )
     if(order['sell_currency'] == "Algorand"):
         myindexer = connect_to_algo(connection_type='indexer')
+        time.sleep(3)
         tx = myindexer.search_transactions(txid = order['tx_id'])
         if(tx.value !=order['sell_amount']):
                 log_message(order)
@@ -223,7 +224,7 @@ def execute_txes(txes):
         return True
     print( f"Trying to execute {len(txes)} transactions" )
     print( f"IDs = {[tx['order_id'] for tx in txes]}" )
-    eth_sk, eth_pk = get_eth_keys()
+    eth_sk, eth_pk = get_eth_keys(filename = "eth_mnemonic.txt")
     algo_sk, algo_pk = get_algo_keys()
     
     if not all( tx['platform'] in ["Algorand","Ethereum"] for tx in txes ):
