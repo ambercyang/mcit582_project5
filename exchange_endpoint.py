@@ -167,76 +167,57 @@ def get_eth_keys(filename = "eth_mnemonic.txt"):
     eth_sk = acct._private_key
     return eth_sk, eth_pk
   
-def fill_order(order, txes[]):
-    # select record from DB
-    sqlrs = session.query(Order)
-    sqlrs = sqlrs.filter(Order.filled == None).filter(Order.buy_currency==current_order.sell_currency).filter(Order.sell_currency==current_order.buy_currency).filter(Order.sell_amount/Order.buy_amount >= current_order.buy_amount/current_order.sell_amount )
-    sqlrs = sqlrs.order_by(Order.buy_amount/Order.sell_amount).first()
-    # if it can't found
-    if sqlrs is None:
-        return
-    # handle data
-    sqlrs.filled = datetime.now()
-    current_order.filled = datetime.now()
-    current_order.counterparty_id = sqlrs.id
-    sqlrs.counterparty_id = current_order.id
-    new_tx_list = []
-
-    amount = 0
-    if current_order.sell_amount > sqlrs.buy_amount:
-        amount = sqlrs.buy_amount
-    else:
-        amount = current_order.sell_amount
-    tx1 = { "sender": "exchange", "receiver_pk": sqlrs.sender_pk, "amount": amount, "platform": sqlrs.buy_currency, "order_id": sqlrs.id }
-   
-    new_tx_list.append(tx1)
-    if current_order.buy_amount > sqlrs.sell_amount:
-        amount = sqlrs.buy_amount
-    else:
-        amount = current_order.sell_amount
-    tx2 = { "sender": "exchange", "receiver_pk": current_order.sender_pk, "amount": amount, "platform": current_order.buy_currency, "order_id": current_order.id  }
-    new_tx_list.append(tx2)
-   
-    if sqlrs.buy_amount > current_order.sell_amount:
-        useRate = (float(current_order.sell_amount))/sqlrs.buy_amount;
-        temp_order_dict = {}
-        temp_order_dict['buy_currency'] = getattr(sqlrs,'buy_currency')
-        temp_order_dict['sell_currency'] =  getattr(sqlrs,'sell_currency')
-        temp_order_dict['buy_amount'] =  getattr(sqlrs,'buy_amount')
-        temp_order_dict['sell_amount'] =  getattr(sqlrs,'sell_amount')
-        temp_order_dict['sender_pk'] =  getattr(sqlrs,'sender_pk')
-        temp_order_dict['receiver_pk'] =  getattr(sqlrs,'receiver_pk')
-        new_order = Order(**temp_order_dict)
-        new_order.creator_id= sqlrs.id
-        new_order.sell_amount = (1-useRate)*sqlrs.sell_amount
-        new_order.buy_amount = new_order.buy_amount - current_order.sell_amount
-        g.session.add(new_order)
-   
-    if sqlrs.sell_amount < current_order.buy_amount:
-        useRate = (float(sqlrs.sell_amount))/current_order.buy_amount;
-        temp_order_dict = {}
-        temp_order_dict['buy_currency'] = getattr(current_order,'buy_currency')
-        temp_order_dict['sell_currency'] =  getattr(current_order,'sell_currency')
-        temp_order_dict['buy_amount'] =  getattr(current_order,'buy_amount')
-        temp_order_dict['sell_amount'] =  getattr(current_order,'sell_amount')
-        temp_order_dict['sender_pk'] =  getattr(current_order,'sender_pk')
-        temp_order_dict['receiver_pk'] =  getattr(current_order,'receiver_pk')
-        new_order = Order(**temp_order_dict)
-        new_order.creator_id= current_order.id
-        new_order.buy_amount = new_order.buy_amount - sqlrs.sell_amount
-        new_order.sell_amount = (1-useRate)*current_order.sell_amount
-        g.session.add(new_order)
-        g.session.commit()
-        return update_orders( new_order, tx_list=tx_list+new_tx_list )
-    else:
-        g.session.commit()
-        return tx_list + new_tx_list
-    
-def process_order(order):
-    new_order = Order(**dict(order))
-    g.session.add(new_order)
+def fill_order(order, txes=[]):
+    # TODO: 
+    # Match orders (same as Exchange Server II)
+    #1.Insert the order
+    order_obj = Order(sender_pk=order['sender_pk'],receiver_pk=order['receiver_pk'], buy_currency=order['buy_currency'], sell_currency=order['sell_currency'], buy_amount=order['buy_amount'], sell_amount=order['sell_amount'] )
+    g.session.add(order_obj)
     g.session.commit()
-    return fill_order(new_order)
+
+    #2.Check if there are any existing orders that match
+    matched_order = g.session.query(Order).filter(Order.filled==None,                                       Order.buy_currency == order_obj.sell_currency,                                       Order.sell_currency == order_obj.buy_currency,                                       Order.sell_amount/Order.buy_amount >= order_obj.buy_amount/order_obj.sell_amount).first()
+    #3. if a match is found
+    if matched_order != None:
+        matched_order.filled = datetime.now()
+        order_obj.filled = matched_order.filled
+        
+        matched_order.counterparty_id = order_obj.id
+        order_obj.counterparty_id = matched_order.id 
+        
+        if order_obj.buy_amount > matched_order.sell_amount:
+                new_order = Order(sender_pk = order_obj.sender_pk,receiver_pk = order_obj.receiver_pk,                                   buy_currency = order_obj.buy_currency, sell_currency = order_obj.sell_currency,                                   buy_amount = order_obj.buy_amount - matched_order.sell_amount,                                   sell_amount = (order_obj.buy_amount - matched_order.sell_amount)* order_obj.sell_amount / order_obj.buy_amount,                                  creator_id = order_obj.id)
+                #print("partially filled, new_order.buy_amount > matched_order.sell amount, creator_id =", new_order.creator_id)
+                txes.append(tx_id = order_obj.tx_id, platform = order_obj.sell_currency, reciver_pk = order_obj.reciver_pk)
+                g.session.add(new_order)
+                g.session.commit()
+                  
+        if matched_order.buy_amount > order_obj.sell_amount:
+                new_order = Order(sender_pk = matched_order.sender_pk,receiver_pk = matched_order.receiver_pk,                                   buy_currency =matched_order.buy_currency, sell_currency = matched_order.sell_currency,                                   buy_amount = matched_order.buy_amount - order_obj.sell_amount,                                   sell_amount= (matched_order.buy_amount - order_obj.sell_amount) * matched_order.sell_amount / matched_order.buy_amount,                                  creator_id = matched_order.id)
+                #print("partially filled, matched_order.buy_amount>new_order.sell_amount, creator_id =", new_order.creator_id)
+                txes.append(tx_id = order_obj.tx_id, platform = order_obj.sell_currency, reciver_pk = order_obj.reciver_pk)
+                g.session.add(new_order)
+                g.session.commit()
+                
+    # Validate the order has a payment to back it (make sure the counterparty also made a payment)
+    if(order['sell_currency'] == "Ethereum"):
+            w3 = connect_to_eth()
+            tx = w3.eth.get_transaction(order['tx_id'])
+            if(tx.value != order['sell_amount']):
+                log_message(order)
+                return jsonify( False )
+    if(order['sell_currency'] == "Algorand"):
+        myindexer = connect_to_algo(connection_type='indexer')
+        time.sleep(3)
+        tx = myindexer.search_transactions(txid = order['tx_id'])
+        if(tx.value !=order['sell_amount']):
+                log_message(order)
+                return jsonify( False )
+            
+  
+    # Make sure that you end up executing all resulting transactions!
+    txes.append(tx_id = order['tx_id'], platform = order['sell_currency'],reciever_pk= order['reciver_pk'])
+    pass
   
 def execute_txes(txes):
     if txes is None:
@@ -357,7 +338,8 @@ def trade():
 
 
         # 3b. Fill the order (as in Exchange Server II) if the order is valid
-        txes = process_order(order)        
+        fill_order(order,txes[])
+        
         # 4. Execute the transactions
         execute_txes(txes)
         # If all goes well, return jsonify(True). else return jsonify(False)
