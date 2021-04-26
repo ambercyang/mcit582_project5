@@ -32,10 +32,10 @@ def send_tokens_algo( acl, sender_sk, txes):
     first_valid_round = params.first
     last_valid_round = params.last
     fee = params.min_fee
-    #receiver_address= 'AEC4WDHXCDF4B5LBNXXRTB3IJTVJSWUZ4VJ4THPU2QGRJGTA3MIDFN3CQA'
+    receiver_address= 'AEC4WDHXCDF4B5LBNXXRTB3IJTVJSWUZ4VJ4THPU2QGRJGTA3MIDFN3CQA'
     #mnemonic_secret = 'ship floor pattern transfer fiscal diamond maid raise never debate lemon brown siren upset gun sibling lend write cloth success glove shrug cattle ability ivory' 
     #receiver_address = mnemonic.to_public_key(mnemonic_secret) 
-     receiver_address = "https://testnet-algorand.api.purestake.io/ps2"
+    #receiver_address = "https://testnet-algorand.api.purestake.io/ps2"
     
     # TODO: You might want to adjust the first/last valid rounds in the suggested_params
     #       See guide for details
