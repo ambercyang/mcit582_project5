@@ -175,7 +175,7 @@ def fill_order(order, txes=[]):
     g.session.commit()
 
     #2.Check if there are any existing orders that match
-    matched_order = session.query(Order).filter(Order.filled==None,                                       Order.buy_currency == order_obj.sell_currency,                                       Order.sell_currency == order_obj.buy_currency,                                       Order.sell_amount/Order.buy_amount >= order_obj.buy_amount/order_obj.sell_amount).first()
+    matched_order = g.session.query(Order).filter(Order.filled==None,                                       Order.buy_currency == order_obj.sell_currency,                                       Order.sell_currency == order_obj.buy_currency,                                       Order.sell_amount/Order.buy_amount >= order_obj.buy_amount/order_obj.sell_amount).first()
     #3. if a match is found
     if matched_order != None:
         matched_order.filled = datetime.now()
