@@ -128,7 +128,7 @@ def check_sig(payload,sig):
     
         #3. Check for invalid input
     else:
-        print("invalid input")
+         print("invalid input")
 
     #print(" this is jsonify(result_check_sig) = ",jsonify(result_check_sig))
     return jsonify(result_check_sig)
