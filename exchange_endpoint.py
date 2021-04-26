@@ -199,6 +199,7 @@ def fill_order(order, txes=[]):
                 
     # Validate the order has a payment to back it (make sure the counterparty also made a payment)
     if(order['sell_currency'] == "Ethereum"):
+            w3 = connect_to_eth()
             tx = w3.eth.get_transaction(order['tx_id'])
             if(tx.value != order['sell_amount']):
                 log_message(order)
