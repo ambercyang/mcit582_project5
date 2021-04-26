@@ -211,23 +211,23 @@ def fill_order(order, txes=[]):
                 g.session.commit()            
                 
     # Validate the order has a payment to back it (make sure the counterparty also made a payment)
-    if(order['sell_currency'] == "Ethereum"):
-            w3 = connect_to_eth()
-            tx = w3.eth.get_transaction(order['tx_id'])
-            if(tx.value != order['sell_amount']):
-                log_message(order)
-                return jsonify( False )
-    if(order['sell_currency'] == "Algorand"):
-        myindexer = connect_to_algo(connection_type='indexer')
-        time.sleep(3)
-        tx = myindexer.search_transactions(txid = order['tx_id'])
+        if(order['sell_currency'] == "Ethereum"):
+                w3 = connect_to_eth()
+                tx = w3.eth.get_transaction(order['tx_id'])
+                if(tx.value != order['sell_amount']):
+                    log_message(order)
+                    return jsonify( False )
+        if(order['sell_currency'] == "Algorand"):
+            myindexer = connect_to_algo(connection_type='indexer')
+            time.sleep(3)
+            tx = myindexer.search_transactions(txid = order['tx_id'])
         if(tx.value !=order['sell_amount']):
                 log_message(order)
                 return jsonify( False )
+        txes.append(tx_obj)
             
-  
     # Make sure that you end up executing all resulting transactions!
-    txes.append(tx_obj)
+    
     return txes
   
 def execute_txes(txes):
@@ -337,7 +337,7 @@ def trade():
         # 2. Add the order to the table
         if(result_check):
             order = {}
-            order['sender_pk'] = payload['sender_pk']
+            #order['sender_pk'] = payload['sender_pk']
             order['receiver_pk'] = payload['receiver_pk']
             order['buy_currency'] = payload['buy_currency']
             order['sell_currency'] = payload['sell_currency']
