@@ -226,6 +226,7 @@ def execute_txes(txes):
         return True
     print( f"Trying to execute {len(txes)} transactions" )
     print( f"IDs = {[tx['order_id'] for tx in txes]}" )
+
     eth_sk, eth_pk = get_eth_keys(filename = "eth_mnemonic.txt")
     algo_sk, algo_pk = get_algo_keys()
     
@@ -243,13 +244,13 @@ def execute_txes(txes):
     for algo_tx in algo_txes:
         acl = connect_to_algo()
         send_tokens_algo(acl, algo_pk , algo_tx)
-        g.session.add(txes(platform = "Algorand",receiver_pk = algo_pk, tx_id = algo_tx))
+        g.session.add(txes(platform = "Algorand",receiver_pk = algo_pk, order_id = algo_tx))
         g.session.commit()
         
     for eth_tx in eth_txes:
         w3 = connect_to_eth()
         send_tokens_eth(w3, eth_sk, eth_tx) 
-        g.session.add(txes(platform = "Ethereum",receiver_pk = eth_pk, tx_id = eth_tx))
+        g.session.add(txes(platform = "Ethereum",receiver_pk = eth_pk, order_id = eth_tx))
         g.session.commit()
     
     pass
