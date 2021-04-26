@@ -19,6 +19,7 @@ from datetime import datetime
 import math
 import sys
 import traceback
+from web3 import Web3
 
 from algosdk import mnemonic
 from algosdk.v2client import indexer
