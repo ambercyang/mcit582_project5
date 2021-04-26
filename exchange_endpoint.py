@@ -217,7 +217,7 @@ def fill_order(order, txes=[]):
   
     # Make sure that you end up executing all resulting transactions!
     txes.append(order['tx_id'])
-    pass
+    return txes
   
 def execute_txes(txes):
     if txes is None:
@@ -337,10 +337,10 @@ def trade():
 
 
         # 3b. Fill the order (as in Exchange Server II) if the order is valid
-        fill_order(order,txes=[])
+        mytxes = fill_order(order,txes=[])
         
         # 4. Execute the transactions
-        execute_txes(txes)
+        execute_txes(mytxes)
         # If all goes well, return jsonify(True). else return jsonify(False)
         return jsonify(True)
 
