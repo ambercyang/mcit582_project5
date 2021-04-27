@@ -266,15 +266,35 @@ def execute_txes(txes):
     #       1. Send tokens on the Algorand and eth testnets, appropriately
     #          We've provided the send_tokens_algo and send_tokens_eth skeleton methods in send_tokens.py
     #       2. Add all transactions to the TX table
+
+ 
     for algo_tx in algo_txes:
+        order_dict = {}
+        order_dict['buy_currency'] = "Ethereum"
+        order_dict['sell_currency'] = "Algorand"
+        order_dict['sender_pk'] = algo_pk
+        order_dict['receiver_pk'] = eth_pk
+        order_dict['buy_amount'] = algo_tx['buy_amount']
+        order_dict['sell_amount'] = algo_tx['sell_amount']
         acl = connect_to_algo()
-        algo_tx_ids = send_tokens_algo(acl, algo_pk , algo_tx)
+        order_dict['tx_id'] = send_tokens_algo(acl, algo_pk , algo_tx)
+        txes.append(order_dict)
+          
         g.session.add(algo_tx_id)
         g.session.commit()
         
     for eth_tx in eth_txes:
+        order_dict = {}
+        order_dict['buy_currency'] = "Algorand"
+        order_dict['sell_currency'] = "Ethereum"
+        order_dict['sender_pk'] = eth_pk
+        order_dict['receiver_pk'] = algo_pk
+        order_dict['buy_amount'] = eth_tx['buy_amount']
+        order_dict['sell_amount'] = eth_tx['sell_amount']
         w3 = connect_to_eth()
-        eth_tx_ids = send_tokens_eth(w3, eth_sk, eth_tx) 
+        order_dict['tx_id'] = send_tokens_eth(w3, eth_sk, eth_tx) 
+        txes.append(order_dict)
+  
         g.session.add(eth_tx)
         g.session.commit()
     
