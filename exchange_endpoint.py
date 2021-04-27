@@ -157,11 +157,11 @@ def get_algo_keys():
 
 def get_eth_keys(filename = "eth_mnemonic.txt"):
     w3 = Web3()
-    
+    w3.eth.account.enable_unaudited_hdwallet_features()
+
     # TODO: Generate or read (using the mnemonic secret) 
     # the ethereum public/private keys
     mnemonic_secret = "beauty diagram educate skirt unfold sing chaos depend acoustic science engage rib"
-    #w3.eth.account.enable_unaudited_hdwallet_features()
     #acct,mnemonic_secret = w3.eth.account.create_with_mnemonic()
     acct = w3.eth.account.from_mnemonic(mnemonic_secret)
     eth_pk = acct._address
