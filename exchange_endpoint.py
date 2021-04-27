@@ -172,12 +172,20 @@ def fill_order(order, txes=[]):
     # TODO: 
     # Match orders (same as Exchange Server II)
     #1.Insert the order
-    order_obj = Order(receiver_pk=order['receiver_pk'], buy_currency=order['buy_currency'], sell_currency=order['sell_currency'], buy_amount=order['buy_amount'], sell_amount=order['sell_amount'] )
+    order_obj = Order(receiver_pk=order['receiver_pk'],\
+                      buy_currency=order['buy_currency'],\
+                      sell_currency=order['sell_currency'],\
+                      buy_amount=order['buy_amount'],\
+                      sell_amount=order['sell_amount'] )
     g.session.add(order_obj)
     g.session.commit()
 
     #2.Check if there are any existing orders that match
-    matched_order = g.session.query(Order).filter(Order.filled==None,                                       Order.buy_currency == order_obj.sell_currency,                                       Order.sell_currency == order_obj.buy_currency,                                       Order.sell_amount/Order.buy_amount >= order_obj.buy_amount/order_obj.sell_amount).first()
+    matched_order = g.session.query(Order).filter(Order.filled==None,\
+                                                  Order.buy_currency == order_obj.sell_currency,\
+                                                  Order.sell_currency == order_obj.buy_currency,\
+                                                  Order.sell_amount/Order.buy_amount >= order_obj.buy_amount/order_obj.sell_amount).first()
+    
     #3. if a match is found
     if matched_order != None:
         matched_order.filled = datetime.now()
@@ -187,10 +195,14 @@ def fill_order(order, txes=[]):
         order_obj.counterparty_id = matched_order.id 
         
         if order_obj.buy_amount > matched_order.sell_amount:
-                new_order = Order(receiver_pk = order_obj.receiver_pk,                                   buy_currency = order_obj.buy_currency, sell_currency = order_obj.sell_currency,                                   buy_amount = order_obj.buy_amount - matched_order.sell_amount,                                   sell_amount = (order_obj.buy_amount - matched_order.sell_amount)* order_obj.sell_amount / order_obj.buy_amount,                                  creator_id = order_obj.id)
+                new_order = Order(receiver_pk = order_obj.receiver_pk,\
+                                  buy_currency = order_obj.buy_currency, sell_currency = order_obj.sell_currency,\
+                                  buy_amount = order_obj.buy_amount - matched_order.sell_amount,\
+                                  sell_amount = (order_obj.buy_amount - matched_order.sell_amount)* order_obj.sell_amount / order_obj.buy_amount,\
+                                  creator_id = order_obj.id)
                 #print("partially filled, new_order.buy_amount > matched_order.sell amount, creator_id =", new_order.creator_id)
                 #txes.append(order_obj.id)
-                tx_obj = TX( platform = order_obj.sell_currency, receiver_pk = order_obj.receiver_pk, order_id = order_obj.id, tx_id = order_obj.tx_id,)
+                tx_obj = TX( platform = order_obj.sell_currency, receiver_pk = order_obj.receiver_pk, order_id = order_obj.id, tx_id = order_obj.tx_id)
                 txes.append(tx_obj)
                 g.session.add(tx_obj)
                 g.session.add(new_order)
@@ -200,14 +212,14 @@ def fill_order(order, txes=[]):
                 new_order = Order(receiver_pk = matched_order.receiver_pk,                                   buy_currency =matched_order.buy_currency, sell_currency = matched_order.sell_currency,                                   buy_amount = matched_order.buy_amount - order_obj.sell_amount,                                   sell_amount= (matched_order.buy_amount - order_obj.sell_amount) * matched_order.sell_amount / matched_order.buy_amount,                                  creator_id = matched_order.id)
                 #print("partially filled, matched_order.buy_amount>new_order.sell_amount, creator_id =", new_order.creator_id)
                 #txes.append(order_obj.id)
-                tx_obj = TX( platform = order_obj.sell_currency, receiver_pk = order_obj.receiver_pk, order_id = order_obj.id, tx_id = order_obj.tx_id,)
+                tx_obj = TX( platform = order_obj.sell_currency, receiver_pk = order_obj.receiver_pk, order_id = order_obj.id, tx_id = order_obj.tx_id)
                 txes.append(tx_obj)
                 g.session.add(tx_obj)
                 g.session.add(new_order)
                 g.session.commit()
                 
         if matched_order.buy_amount == order_obj.sell_amount:
-                tx_obj = TX( platform = order_obj.sell_currency, receiver_pk = order_obj.receiver_pk, order_id = order_obj.id, tx_id = order_obj.tx_id,)
+                tx_obj = TX( platform = order_obj.sell_currency, receiver_pk = order_obj.receiver_pk, order_id = order_obj.id, tx_id = order_obj.tx_id)
                 txes.append(tx_obj)
                 g.session.add(tx_obj)
                 g.session.commit()            
@@ -306,7 +318,7 @@ def trade():
     #get_keys()
     if request.method == "POST":
         content = request.get_json(silent=True)
-        columns = [ "buy_currency", "sell_currency", "buy_amount", "sell_amount", "platform", "tx_id", "receiver_pk"]
+        columns = [ "buy_currency", "sell_currency", "buy_amount", "sell_amount", "platform", "tx_id", "receiver_pk","sender_pk"]
         fields = [ "sig", "payload" ]
         error = False
         for field in fields:
@@ -339,7 +351,7 @@ def trade():
         # 2. Add the order to the table
         if(result_check):
             order = {}
-            #order['sender_pk'] = payload['sender_pk']
+            order['sender_pk'] = payload['sender_pk']
             order['receiver_pk'] = payload['receiver_pk']
             order['buy_currency'] = payload['buy_currency']
             order['sell_currency'] = payload['sell_currency']
@@ -372,7 +384,7 @@ def trade():
 
 @app.route('/order_book')
 def order_book():
-    fields = [ "buy_currency", "sell_currency", "buy_amount", "sell_amount", "signature", "tx_id", "receiver_pk"]
+    fields = [ "buy_currency", "sell_currency", "buy_amount", "sell_amount", "signature", "tx_id", "receiver_pk","sender_pk"]
         
     # Same as before
     temp = g.session.query(Order)
@@ -383,7 +395,7 @@ def order_book():
         myorder['sell_currency'] =  getattr(myquery,'sell_currency')
         myorder['buy_amount'] =  getattr(myquery,'buy_amount')
         myorder['sell_amount'] =  getattr(myquery,'sell_amount')
-        #myorder['sender_pk'] =  getattr(myquery,'sender_pk')
+        myorder['sender_pk'] =  getattr(myquery,'sender_pk')
         myorder['receiver_pk'] =  getattr(myquery,'receiver_pk')
         myorder['signature'] =  getattr(myquery,'signature')
         myorder['tx_id'] =  getattr(myquery,'tx_id')
